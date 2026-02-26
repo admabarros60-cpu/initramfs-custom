@@ -29,3 +29,56 @@ case "$cmd" in
 
 # /proc - True Minimal Static Tools
 
+If you're building a more real system, /sbin typically contains binaries from:
+- busybox
+- or full utilities from GNU coreutils + kmod
+
+example real layout:
+```
+/sbin/init
+/sbin/modprobe
+/sbin/depmod
+/sbin/switch_root
+```
+
+# Absolute Minimal Working Setup
+
+For a kernel that boots directly into /init, you don't even need /sbin/init.
+
+Minimal tree:
+```
+/
+ ├── init
+ ├── bin/
+ ├── sbin/
+ ├── proc/
+ ├── sys/
+ └── dev/
+```
+
+Where /init contains:
+```
+#!/bin/sh
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev
+exec /bin/sh
+```
+
+In that case, /sbin can be empty.
+
+# When /sbin/init Is Required
+
+If your kernel command line contains:
+```
+init=/sbin/init
+```
+
+or no init= is specified and /init doesn't exist, the kernel searches in this order:
+- /init
+- /sbin/init
+- /etc/init
+- /bin/init
+- /bin/sh
+
+So /sbin/init becomes important in traditional layouts.
