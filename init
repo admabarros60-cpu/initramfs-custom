@@ -1,1 +1,23 @@
+#!/bin/sh
 
+# Minimal init: mount basics, load modules, drop to shell
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev
+
+# Load storage modules
+/sbin/modprobe loop
+/sbin/modprobe ahci
+/sbin/modprobe nvme
+/sbin/modprobe ext4
+
+# Setup framebuffer (vesafb or simplefb for basic display)
+echo 0 > /sys/module/hid_apple/parameters/fnmode  # Optional quirks
+/sbin/modprobe fbcon
+
+# Mount rootfs (placeholder for Lumen real root)
+mkdir /root
+mount /dev/nvme0n1p1 /root  # Adjust device
+
+# Pivot to Wayland-ready root or exec init
+exec switch_root /root /sbin/init  # Or chroot for testing
